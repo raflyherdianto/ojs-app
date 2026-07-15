@@ -65,7 +65,7 @@ jobs:
 
   deploy:
     needs: [changes, build-and-push]
-    if: always() && !failed() && !cancelled() && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+    if: always() && needs.changes.result == 'success' && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
