@@ -40,7 +40,9 @@ services:
 
 volumes:
   ojs-code:
+    name: ojs-app-code
   ojs-files:
+    name: ojs-app-files
 
 networks:
   shared-network:
