@@ -1,0 +1,27 @@
+# Configurations and secrets
+config.inc.php
+.env
+.env.*
+
+# Caches and runtime logs
+cache/*.php
+cache/*.html
+cache/opcache/*
+*.log
+
+# Public uploads
+public/*
+!public/.gitkeep
+
+# Package manager folders (built in CI/CD)
+lib/pkp/lib/vendor/
+node_modules/
+
+# Local build artifacts
+info.php
+
+# OS and IDE files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
