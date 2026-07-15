@@ -22,7 +22,7 @@ services:
     container_name: ojs-web
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes:
       - ojs-code:/var/www/html:ro
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
