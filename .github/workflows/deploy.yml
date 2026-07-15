@@ -7,7 +7,30 @@ on:
       - master
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      src: ${{ steps.filter.outputs.src }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Filter Paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            src:
+              - '!docker-compose.yml'
+              - '!docker/nginx/nginx.conf'
+              - '!.github/workflows/deploy.yml'
+              - '!config.inc.php'
+              - '!README.md'
+              - '**'
+
   build-and-push:
+    needs: changes
+    if: needs.changes.outputs.src == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,9 +64,22 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    needs: build-and-push
+    needs: [changes, build-and-push]
+    if: always() && !failed() && !cancelled() && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy Config Files to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "docker-compose.yml,docker/nginx/nginx.conf"
+          target: "~/ojs"
+
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -56,4 +92,3 @@ jobs:
             docker volume rm ojs-app-code || true
             docker compose pull
             docker compose up -d
-
