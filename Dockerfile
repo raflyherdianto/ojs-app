@@ -11,6 +11,13 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     git \
     unzip \
+    curl \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 24
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure GD extension
@@ -49,8 +56,9 @@ COPY . /var/www/html
 # Run composer installation inside build context for dependencies
 RUN composer install --no-dev --optimize-autoloader --no-plugins -d lib/pkp
 
-# Create OJS files directory and set ownership/permissions
-RUN mkdir -p /var/www/files && chown -R www-data:www-data /var/www/files \
+# Ensure directories exist and set ownership/permissions
+RUN mkdir -p /var/www/files /var/www/html/cache /var/www/html/public \
+    && chown -R www-data:www-data /var/www/files \
     && chown -R www-data:www-data /var/www/html/cache /var/www/html/public
 
 # Run container as non-root user (least privilege)
